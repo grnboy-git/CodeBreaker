@@ -6,9 +6,6 @@ import java.io.InputStreamReader;
 import java.util.Random;
 
 public class CBEngine {
-	public static void main(String[] args){
-		
-	}
 	
 	// タイトル文
 	private String title = "Code Breaker!!";
@@ -36,16 +33,15 @@ public class CBEngine {
 	// 推理数字と解答数字を比較してのヒットカウンタ
 	private int countHit = 0;
 	private int countBlow = 0;
-	private int countChallenge = 0;
 	
 //	コンフィグ設定の適用（ゲーム中の使用カード枚数）
-	public void initGame(){
+	public CBEngine(){
 		answerNum = new int[defaultCardNum];
 		inputNum = new int[defaultCardNum];
 		setAnswerNum ();
 	}
 //	設定変更時の再設定適用処理（ゲーム中の使用カード枚数）
-	public void changeSetting(int defaultCardNum){
+	public CBEngine(int defaultCardNum){
 		this.defaultCardNum = defaultCardNum;
 		answerNum = new int[defaultCardNum];
 		inputNum = new int[defaultCardNum];
@@ -70,10 +66,10 @@ public class CBEngine {
 		}
 	}
 //	解答番号の入力設定処理
-	public void inputCardNum(int index, int answer)throws InputException{
+	public void inputCardNum(int index, int answerNum)throws InputException{
 		if (index > -1 && index < defaultCardNum){
-			if (answer > 0 && answer < defaultCardRange+1){
-				inputNum[index] = answer;
+			if (answerNum > 0 && answerNum < defaultCardRange+1){
+				inputNum[index] = answerNum;
 			}else{
 				throw new InputException("入力した数値の範囲がおかしいかも(・・;)");
 			}
@@ -83,14 +79,14 @@ public class CBEngine {
 	}
 //	入力した数値がString型で来たときの処理をとりあえず追加してみる
 	public void inputCardNum(int index, String string)throws InputException{
-		int answer;
+		int answerNum;
         try{
-            answer = Integer.parseInt(string); //stringで来ちゃったら試しにint型にして渡してみる
+        	answerNum = Integer.parseInt(string); //stringで来ちゃったら試しにint型にして渡してみる
         }
         catch(NumberFormatException e){
             throw new InputException("入力が答えの範囲外です"); //うまくいかなかったら再入力を促す
         }
-        inputCardNum(index, answer);
+        inputCardNum(index, answerNum);
 	}
 	
 //	入力後の判定処理（解答と入力した数列のマッチ判定）
@@ -138,7 +134,7 @@ public class CBEngine {
 	public int getBlow(){
 		return countBlow;
 	}
-	public int[] getAnwer(){
+	public int[] getAnswer(){
 		return answerNum;
 	}
 	public int[] getInput(){
@@ -151,7 +147,7 @@ public class CBEngine {
 		this.rules = rule;
 	}
 	public void setInput(int[] input)throws InputException{
-		for (int i=0; i<=input.length; i++){
+		for (int i=0; i<=input.length-1; i++){
 			inputCardNum(i, input[i]);
 		}
 	}

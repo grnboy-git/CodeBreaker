@@ -11,6 +11,7 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -18,7 +19,11 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableModel;
 
 // GUIを作ろうのやーつ。JFrameとか聞いたことあるけど。。ど。。。
+@SuppressWarnings("serial")
 public class CodeBreaker extends JFrame implements ActionListener{
+	//作成したクラスの初期化
+	CBEngine cbe = new CBEngine();
+	
 //	初期化祭り。こんな書き方でいいの？不安！超不安！！１１１
 	private JPanel panel; //最終的に作って変数名調整しよう。スーパー暫定ver.
     private JPanel centerPanel; //content的な
@@ -26,10 +31,12 @@ public class CodeBreaker extends JFrame implements ActionListener{
     private JScrollPane sc; //Pane"l"じゃないの？わかめ。
     private DefaultTableModel dtm; //DTM!なんかかっこいい。
     private JTable resultTable; //そのまま結果表示のView
-    private JComboBox[] inputBox = new JComboBox[3]; //これ必要なの？。。。horizontalで並べるため？
+    @SuppressWarnings("unchecked")
+	private JComboBox<String>[] inputBox = new JComboBox[3]; //ComboBoxのプルダウンリスト
     private String[] selector = { "1", "2", "3", "4", "5", "6" }; //pulldownリストのやつ
     private JButton judge; //実行ボタン的な
-    public CodeBreaker() {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public CodeBreaker() {
         //GUIの初期化
         //Panelの初期化
         panel = new JPanel(new BorderLayout()); //newした中でnewする違和感
@@ -72,77 +79,174 @@ public class CodeBreaker extends JFrame implements ActionListener{
         this.setBounds(100, 100, 400, 500); //margin left, upでwidth400のheight500ってこと。だっけ。 
         this.pack(); //ウィンドウのバーの領域は上記指定に含まない的な
         this.setVisible(true); //上の指定ありきでーの、フレームを表示！のやーつ
+        
+      //ルールの表示
+        JOptionPane.showMessageDialog(this, //ダイアログでtitleとruleを表示させてみる
+                                      cbe.getRule(), 
+                                      cbe.getTitle(),
+                                      JOptionPane.INFORMATION_MESSAGE);
+        
+        // ゲームの初期化
+        try {
+        	int[] input = {1,1,1};
+        	cbe.setInput(input);
+        }
+        catch(InputException e) {
+        	JOptionPane.showMessageDialog(this,//エラー表示もポップアップで。やっつけじゃないから。
+        			e.getMessage(),
+        			cbe.getTitle(),
+        			JOptionPane.ERROR_MESSAGE);
+        }
     }
     
+    // こっちで処理をどんどんしてく。
     public void actionPerformed(ActionEvent arg0) {
+    	System.out.println(arg0.getActionCommand()); //FIXME
+        if (arg0.getActionCommand().equalsIgnoreCase("judge")) {
+            //Judge
+            boolean judge = cbe.judgeAnswer(); //ゲーム結果を格納
+
+            
+            //コンソールに表示させる。確認用 FIXME
+            int[] ans = cbe.getAnswer();
+            System.out.println("答え");
+            for (int i = 0; i < ans.length; i++) {
+                System.out.print(ans[i]);
+            }
+            System.out.println();
+            System.out.println("入力");
+            int[] input = cbe.getInput();
+            for (int i = 0; i < input.length; i++) {
+                System.out.print(input[i]);
+            }
+            System.out.println();
+            System.out.println("hit:" + cbe.getHit()
+                             + " blow:" + cbe.getBlow());
+
+            //結果をresultTableに表示させる
+            Object[] row = new Object[5];
+            for (int i = 0; i < 3; i++) { //ここはループで
+                row[i] = Integer.valueOf(input[i]);
+            }
+            row[3] = Integer.valueOf(cbe.getHit()); //ここはメソッドから
+            row[4] = Integer.valueOf(cbe.getBlow()); //ここはメソッドから
+            dtm.addRow(row); //dtmに行の情報を追加する
+            if (judge) {
+                //全問正解のときの処理
+                int res = JOptionPane.showConfirmDialog(this,
+                                           "まだ続けますか？",
+                                           "おめでとう",
+                                           JOptionPane.YES_NO_OPTION); //続けるかDialogで聞く
+                if (res == JOptionPane.YES_OPTION) { //Yesが選ばれたら
+                    //resultTableの初期化
+                    int count = dtm.getRowCount(); //チャレンジ数のカウンタがここに
+                    for (int i = 0; i < count; i++) {
+                        dtm.removeRow(0);
+                    }
+                    //GameEngineの初期化
+                    cbe.setAnswerNum();
+                    try {
+                        cbe.setInput(new int[] { 1, 1, 1 });
+                    } catch (InputException e) {
+                        JOptionPane.showMessageDialog(this,
+                                           e.getMessage(),
+                                           cbe.getTitle(),
+                                           JOptionPane.ERROR_MESSAGE);
+                    }
+                    cbe.judgeAnswer();
+                    //GUIの初期化
+                    for (int i = 0; i < inputBox.length; i++) {
+                        inputBox[i].setSelectedIndex(0);
+                    }
+                } else {
+                    System.exit(0);
+                }
+
+            }
+
+        } else {//Judge以外なので入力部分の処理となる
+            //入力部の特定
+            int input = Integer.parseInt(arg0.getActionCommand());
+            try {
+                cbe.inputCardNum(input, (String) inputBox[input]
+                        .getSelectedItem());
+            } catch (InputException e) {
+                JOptionPane.showMessageDialog(this,
+                                           e.getMessage(),
+                                           cbe.getTitle(),
+                                           JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
         
 	public static void main(String[] args) {
-		//作成したクラスの初期化
-		CBEngine cbe = new CBEngine();
-		
-		// 変数の初期化。
-		/*
-		 * 必要な変数 タイトル、ルール文、答えの格納される配列、 入力された数字の格納される配列。 ヒット数、ブロー数、チャレンジの回数
-		 */
-
-		// タイトル文
-		String title = cbe.getTitle();
-
-		// ルール説明文
-		String rules = cbe.getRule();
-
-		// 初期数字の格納される配列
-//		int[] answerNum = new int[3];
-
-		// 推理数字の格納される配列
-//		int[] inputNum = new int[3];
-
-		// 推理数字と解答数字を比較してのヒットカウンタ
-//		int countHit = 0;
-//		int countBlow = 0;
-		int countChallenge = 0;
-		
-		// ゲームの初期化はここで実施
-		cbe.initGame();
-
-		// タイトルとルールの表示
-		System.out.println(title);
-		System.out.println(rules);
-
-		// ランダムな答えを作成。
-		// ただし、仕様通り、同じ数字がないようにする。
-		cbe.setAnswerNum();
-
-		// 入力させる。数値のチェックを行う。
-		while (true) {
-		countChallenge++;
-		System.out.println("*******" + countChallenge + "回目の挑戦！*******");
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					System.in));
-			for (int i = 0; i <= cbe.getDefaultCardNum() - 1; i++) {
-				System.out.print( (i + 1) + "個目 : ");
-				try {
-					cbe.inputCardNum(i,br.readLine());
-				} catch (InputException e) {
-					System.err.print(e.getMessage());
-					i--;
-				} catch (IOException e) { // 文字inputってこの辺りが必要？
-					System.err.println("もう一度入力してください");
-					i--;
-				}
-			}
-			
-			// 終了判断　ヒットが3つになったら終了
-			if (cbe.judgeAnswer()) { //ここでカードのマッチ判定のメソッドを実行してる
-				System.out.println("３つのカード番号を当てました！おめでとうございます！");
-				System.out.println(countChallenge + "回目のチャレンジでした。");
-				break;
-			} else {
-				System.out.println("残念！あなたのHIT数は" + cbe.getHit() + "で、BLOW数は"
-						+ cbe.getBlow() + "でした。");
-				System.out.println(countChallenge + "回目のチャレンジでした。");
-			}
-		}
+		new CodeBreaker();
+	
+//		//作成したクラスの初期化
+//		CBEngine cbe = new CBEngine();
+//		
+//		// 変数の初期化。
+//		/*
+//		 * 必要な変数 タイトル、ルール文、答えの格納される配列、 入力された数字の格納される配列。 ヒット数、ブロー数、チャレンジの回数
+//		 */
+//
+//		// タイトル文
+//		String title = cbe.getTitle();
+//
+//		// ルール説明文
+//		String rules = cbe.getRule();
+//
+//		// 初期数字の格納される配列
+////		int[] answerNum = new int[3];
+//
+//		// 推理数字の格納される配列
+////		int[] inputNum = new int[3];
+//
+//		// 推理数字と解答数字を比較してのヒットカウンタ
+////		int countHit = 0;
+////		int countBlow = 0;
+//		int countChallenge = 0;
+//		
+//		// ゲームの初期化はここで実施
+//		cbe.initGame();
+//
+//		// タイトルとルールの表示
+//		System.out.println(title);
+//		System.out.println(rules);
+//
+//		// ランダムな答えを作成。
+//		// ただし、仕様通り、同じ数字がないようにする。
+//		cbe.setAnswerNum();
+//
+//		// 入力させる。数値のチェックを行う。
+//		while (true) {
+//		countChallenge++;
+//		System.out.println("*******" + countChallenge + "回目の挑戦！*******");
+//			BufferedReader br = new BufferedReader(new InputStreamReader(
+//					System.in));
+//			for (int i = 0; i <= cbe.getDefaultCardNum() - 1; i++) {
+//				System.out.print( (i + 1) + "個目 : ");
+//				try {
+//					cbe.inputCardNum(i,br.readLine());
+//				} catch (InputException e) {
+//					System.err.print(e.getMessage());
+//					i--;
+//				} catch (IOException e) { // 文字inputってこの辺りが必要？
+//					System.err.println("もう一度入力してください");
+//					i--;
+//				}
+//			}
+//			
+//			// 終了判断　ヒットが3つになったら終了
+//			if (cbe.judgeAnswer()) { //ここでカードのマッチ判定のメソッドを実行してる
+//				System.out.println("３つのカード番号を当てました！おめでとうございます！");
+//				System.out.println(countChallenge + "回目のチャレンジでした。");
+//				break;
+//			} else {
+//				System.out.println("残念！あなたのHIT数は" + cbe.getHit() + "で、BLOW数は"
+//						+ cbe.getBlow() + "でした。");
+//				System.out.println(countChallenge + "回目のチャレンジでした。");
+//			}
+//		}
 	}
 }
