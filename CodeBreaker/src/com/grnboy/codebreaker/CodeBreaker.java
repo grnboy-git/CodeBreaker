@@ -63,9 +63,9 @@ public class CodeBreaker {
 //		}
 
 		// 入力させる。数値のチェックを行う。
+		while (true) {
 		countChallenge++;
 		System.out.println("*******" + countChallenge + "回目の挑戦！*******");
-		while (true) {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					System.in));
 			for (int i = 0; i <= answerNum.length - 1; i++) {
