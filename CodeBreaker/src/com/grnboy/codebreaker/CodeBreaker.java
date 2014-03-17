@@ -14,7 +14,7 @@ import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableModel;
 
-// GUIを作ろうのやーつ。JFrameとか聞いたことあるけど。。ど。。。
+// GUIを作ろうのやーつ。JFrameとか聞いたことあるけど。。ど。。
 @SuppressWarnings("serial")
 public class CodeBreaker extends JFrame implements ActionListener{
 	//作成したクラスの初期化
