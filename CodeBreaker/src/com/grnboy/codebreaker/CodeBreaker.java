@@ -17,68 +17,61 @@ import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableModel;
 
+// GUIを作ろうのやーつ。JFrameとか聞いたことあるけど。。ど。。。
 public class CodeBreaker extends JFrame implements ActionListener{
-	private JPanel panel;
-
-    private JPanel centorPanel;
-
-    private JPanel southPanel;
-
-    private JScrollPane sc;
-
-    private DefaultTableModel dtm;
-
-    private JTable resultTable;
-
-    private JComboBox[] inputBox = new JComboBox[3];
-
-    private String[] selector = { "1", "2", "3", "4", "5", "6" };
-
-    private JButton judge;
-
+//	初期化祭り。こんな書き方でいいの？不安！超不安！！１１１
+	private JPanel panel; //最終的に作って変数名調整しよう。スーパー暫定ver.
+    private JPanel centerPanel; //content的な
+    private JPanel southPanel; //footerらへん
+    private JScrollPane sc; //Pane"l"じゃないの？わかめ。
+    private DefaultTableModel dtm; //DTM!なんかかっこいい。
+    private JTable resultTable; //そのまま結果表示のView
+    private JComboBox[] inputBox = new JComboBox[3]; //これ必要なの？。。。horizontalで並べるため？
+    private String[] selector = { "1", "2", "3", "4", "5", "6" }; //pulldownリストのやつ
+    private JButton judge; //実行ボタン的な
     public CodeBreaker() {
         //GUIの初期化
         //Panelの初期化
-        panel = new JPanel(new BorderLayout());
-        centorPanel = new JPanel();
+        panel = new JPanel(new BorderLayout()); //newした中でnewする違和感
+        centerPanel = new JPanel(); 
         southPanel = new JPanel();
         //テーブル部。結果表示。今回はJTableを使用。
         dtm = new DefaultTableModel();
-        dtm.addColumn("1");
-        dtm.addColumn("2");
+        dtm.addColumn("1"); //暫定データ載っけてカラム追加しておく。[FIXME]!!!
+        dtm.addColumn("2"); 
         dtm.addColumn("3");
         dtm.addColumn("HIT");
         dtm.addColumn("BLOW");
 
         resultTable = new JTable(dtm);
-        resultTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        sc = new JScrollPane(resultTable,
+        resultTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS); //勝手に幅調整のやつ
+        sc = new JScrollPane(resultTable, //スクロールバーはどっちも有効化。neededだから必要なときだけ表示ね。なんか思い出した。
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        centorPanel.add(sc);
+        centerPanel.add(sc); //centerPanelにスクロールバーaddする。脳みそパンクする
 
         //入力部分の製作
-        for (int i = 0; i < 3; i++) {
-            inputBox[i] = new JComboBox(selector);
-            inputBox[i].setActionCommand("" + i);
-            inputBox[i].addActionListener(this);
-            southPanel.add(inputBox[i]);
+        for (int i=0; i<3; i++) {
+            inputBox[i] = new JComboBox(selector); //pulldownリストを選択
+            inputBox[i].setActionCommand("" + i); //
+            inputBox[i].addActionListener(this); //
+            southPanel.add(inputBox[i]); //footerに入力部品を追加のやつ
         }
         judge = new JButton("JUDGE!!");
         judge.setActionCommand("JUDGE");
         judge.addActionListener(this);
-        southPanel.add(judge);
+        southPanel.add(judge); //実行ボタンもfooterに追加
 
         //テーブル部、入力部のセット。
-        panel.add(centorPanel, BorderLayout.CENTER);
+        panel.add(centerPanel, BorderLayout.CENTER);
         panel.add(southPanel, BorderLayout.SOUTH);
-        this.getContentPane().add(panel);
+        this.getContentPane().add(panel); //最終的にメインに載せるときはContentPaneに載せるやーつですよ
 
-        //表示
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setBounds(100, 100, 400, 500);
-        this.pack();
-        this.setVisible(true);
+        //表示させてるところ。
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //表示されるフレームの罰点押したときの処理の選択をするやーつ
+        this.setBounds(100, 100, 400, 500); //margin left, upでwidth400のheight500ってこと。だっけ。 
+        this.pack(); //ウィンドウのバーの領域は上記指定に含まない的な
+        this.setVisible(true); //上の指定ありきでーの、フレームを表示！のやーつ
     }
     
     public void actionPerformed(ActionEvent arg0) {
