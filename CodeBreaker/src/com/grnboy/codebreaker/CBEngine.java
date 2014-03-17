@@ -21,7 +21,7 @@ public class CBEngine {
 	// +"\n"
 	// +"\n"
 	// +"\n"
-			+ "\n";
+			+ "全てのカード番号を解読しろ！！\n";
 
 	// 初期数字の格納される配列
 	private int[] answerNum;
@@ -72,7 +72,7 @@ public class CBEngine {
 //	解答番号の入力設定処理
 	public void inputCardNum(int index, int answer)throws InputException{
 		if (index > -1 && index < defaultCardNum){
-			if (answer > 0 && answer < defaultCardRange){
+			if (answer > 0 && answer < defaultCardRange+1){
 				inputNum[index] = answer;
 			}else{
 				throw new InputException("入力した数値の範囲がおかしいかも(・・;)");
@@ -106,7 +106,6 @@ public class CBEngine {
 						<= answerNum.length - 1; j++) {
 					if (answerNum[i] == inputNum[j]) {
 						countBlow++;
-						System.out.println(i);
 					}
 				}
 			}
